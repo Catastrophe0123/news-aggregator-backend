@@ -1,4 +1,5 @@
 import express from 'express';
+import 'express-async-errors';
 import { json } from 'body-parser';
 import Axios from 'axios';
 import { body } from 'express-validator';
@@ -16,6 +17,8 @@ app.use(json());
 import { getFrontPage } from './controllers/news';
 import { signupHandler } from './controllers/authentication';
 import { DatabaseConnectionError } from './errors/database-connection-error';
+import { NotFoundError } from './errors/not-found-error';
+import { errorHandler } from './middlewares/error-handler';
 
 // axios config
 Axios.defaults.headers.common['Authorization'] = process.env.NEWS_API;
@@ -34,6 +37,12 @@ app.post(
 	signupHandler
 );
 
+app.all('*', () => {
+	throw new NotFoundError('Route not found');
+});
+
+app.use(errorHandler);
+
 const start = async () => {
 	try {
 		await mongoose.connect(
@@ -42,6 +51,7 @@ const start = async () => {
 		);
 		console.log('connected to mongodb');
 	} catch (err) {
+		console.log('im running');
 		console.log(err);
 		throw new DatabaseConnectionError('could not connect to database');
 	}
