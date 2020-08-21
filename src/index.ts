@@ -57,10 +57,10 @@ app.use(errorHandler);
 
 const start = async () => {
 	try {
-		await mongoose.connect(
-			'mongodb+srv://hello123:hello123@maincluster.twksz.mongodb.net/news?retryWrites=true&w=majority',
-			{ useNewUrlParser: true, useUnifiedTopology: true }
-		);
+		await mongoose.connect(process.env.MONGO_URI!, {
+			useNewUrlParser: true,
+			useUnifiedTopology: true,
+		});
 		console.log('connected to mongodb');
 	} catch (err) {
 		console.log('im running');

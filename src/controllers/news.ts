@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Axios from 'axios';
 import { News } from '../types/headLines';
+import { APIError } from '../errors/api-error';
 
 const getFrontPage = async (req: Request, res: Response) => {
 	try {
@@ -11,6 +12,7 @@ const getFrontPage = async (req: Request, res: Response) => {
 		return res.send(resp.data);
 	} catch (err) {
 		console.error(err);
+		throw new APIError('Cannot access API');
 	}
 };
 
