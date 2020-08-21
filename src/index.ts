@@ -15,7 +15,7 @@ app.use(json());
 
 // local imports
 import { getFrontPage } from './controllers/news';
-import { signupHandler } from './controllers/authentication';
+import { signupHandler, signinHandler } from './controllers/authentication';
 import { DatabaseConnectionError } from './errors/database-connection-error';
 import { NotFoundError } from './errors/not-found-error';
 import { errorHandler } from './middlewares/error-handler';
@@ -37,7 +37,19 @@ app.post(
 	signupHandler
 );
 
-app.all('*', () => {
+app.post(
+	'/login',
+	[
+		body('email').isEmail().withMessage('email must be valid'),
+		body('password')
+			.trim()
+			.isLength({ max: 20, min: 4 })
+			.withMessage('password must be atleast 4 letters long'),
+	],
+	signinHandler
+);
+
+app.all('*', async () => {
 	throw new NotFoundError('Route not found');
 });
 
