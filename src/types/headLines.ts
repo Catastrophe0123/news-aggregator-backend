@@ -13,7 +13,7 @@ export interface Article {
 	urlToImage: string;
 	publishedAt: Date;
 	content: string;
-	tags: null | string[] | Set<string>;
+	tags: null | string[];
 }
 
 export interface Source {

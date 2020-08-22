@@ -19,6 +19,9 @@
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^5.10.0",
 		"rake-js": "^0.1.1",
+		"retext": "^7.0.1",
+		"retext-keywords": "^6.0.0",
+		"retext-pos": "^3.0.0",
 		"ts-node-dev": "^1.0.0-pre.58",
 		"typescript": "^3.9.7"
 	},
