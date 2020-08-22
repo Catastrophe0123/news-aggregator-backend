@@ -24,7 +24,7 @@ import { errorHandler } from './middlewares/error-handler';
 Axios.defaults.headers.common['Authorization'] = process.env.NEWS_API;
 Axios.defaults.baseURL = 'https://newsapi.org';
 
-app.get('/', getFrontPage);
+app.get('/headlines', getFrontPage);
 app.post(
 	'/signup',
 	[
