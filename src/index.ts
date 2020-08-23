@@ -14,7 +14,7 @@ const app = express();
 app.use(json());
 
 // local imports
-import { getFrontPage } from './controllers/news';
+import { getFrontPage, getSearch } from './controllers/news';
 import { signupHandler, signinHandler } from './controllers/authentication';
 import { DatabaseConnectionError } from './errors/database-connection-error';
 import { NotFoundError } from './errors/not-found-error';
@@ -48,6 +48,8 @@ app.post(
 	],
 	signinHandler
 );
+
+app.get('/search', getSearch);
 
 app.all('*', async () => {
 	throw new NotFoundError('Route not found');

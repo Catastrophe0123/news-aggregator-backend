@@ -10,6 +10,39 @@ import pos from 'retext-pos';
 import k from 'retext-keywords';
 import tostring from 'nlcst-to-string';
 
+const getTagsWithRetext = (data: News) => {
+	for (let i = 0; i < data.articles.length; i++) {
+		data.articles[i].tags = [];
+		retext()
+			.use(pos)
+			.use(k)
+			.process(
+				`${data.articles[i].title} ${data.articles[i].description}`,
+				(err: Error, file: any) => {
+					if (err) throw err;
+					console.log('Keywords:');
+					file.data.keywords.forEach(function (key: any) {
+						console.log(tostring(key.matches[0].node));
+					});
+					console.log();
+					console.log('Key-phrases:');
+					file.data.keyphrases.forEach(function (phrase: any) {
+						console.log(
+							phrase.matches[0].nodes.map(stringify).join('')
+						);
+						data.articles[i].tags!.push(
+							phrase.matches[0].nodes.map(stringify).join('')
+						);
+						function stringify(value: any) {
+							return tostring(value);
+						}
+					});
+				}
+			);
+	}
+	return data;
+};
+
 const getFrontPage = async (req: Request, res: Response) => {
 	try {
 		let resp = await Axios.get('/v2/top-headlines?country=in');
@@ -29,35 +62,7 @@ const getFrontPage = async (req: Request, res: Response) => {
 		// }
 
 		// RETEXT IMPLEMENTATION
-		for (let i = 0; i < data.articles.length; i++) {
-			data.articles[i].tags = [];
-			retext()
-				.use(pos)
-				.use(k)
-				.process(
-					`${data.articles[i].title} ${data.articles[i].description}`,
-					(err: Error, file: any) => {
-						if (err) throw err;
-						console.log('Keywords:');
-						file.data.keywords.forEach(function (key: any) {
-							console.log(tostring(key.matches[0].node));
-						});
-						console.log();
-						console.log('Key-phrases:');
-						file.data.keyphrases.forEach(function (phrase: any) {
-							console.log(
-								phrase.matches[0].nodes.map(stringify).join('')
-							);
-							data.articles[i].tags!.push(
-								phrase.matches[0].nodes.map(stringify).join('')
-							);
-							function stringify(value: any) {
-								return tostring(value);
-							}
-						});
-					}
-				);
-		}
+		data = getTagsWithRetext(data);
 
 		return res.send(data);
 	} catch (err) {
@@ -66,4 +71,22 @@ const getFrontPage = async (req: Request, res: Response) => {
 	}
 };
 
-export { getFrontPage };
+const getSearch = async (req: Request, res: Response) => {
+	let queries = req.query;
+	console.log('queries : ', queries);
+	try {
+		let resp = await Axios.get('/v2/everything', {
+			params: {
+				...queries,
+			},
+		});
+		let data = resp.data as News;
+		data = getTagsWithRetext(data);
+		return res.send(data);
+	} catch (err) {
+		console.error(err);
+		throw new APIError('Cannot access API');
+	}
+};
+
+export { getFrontPage, getSearch };
