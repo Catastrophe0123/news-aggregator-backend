@@ -2,6 +2,12 @@ export interface News {
 	status: string;
 	totalResults: string;
 	articles: Article[];
+	sourceData?: Source;
+}
+
+export interface Sources {
+	status: string;
+	sources: Source[];
 }
 
 export interface Article {
@@ -19,6 +25,11 @@ export interface Article {
 export interface Source {
 	id: string;
 	name: string;
+	description?: string;
+	url?: string;
+	category?: string;
+	language?: string;
+	country?: string;
 }
 
 // {

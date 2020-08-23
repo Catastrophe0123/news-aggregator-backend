@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, query } from 'express';
 import Axios from 'axios';
-import { News } from '../types/headLines';
+import { News, Source, Sources } from '../types/headLines';
 import { APIError } from '../errors/api-error';
 // import rake from 'rake-js';
 
@@ -75,16 +75,37 @@ const getSearch = async (req: Request, res: Response) => {
 	let queries = req.query;
 	console.log('queries : ', queries);
 	try {
-		let resp = await Axios.get('/v2/everything', {
+		let resp = await Axios.get('/v2/everything?language=en', {
 			params: {
 				...queries,
 			},
 		});
 		let data = resp.data as News;
 		data = getTagsWithRetext(data);
+		if (queries.sources) {
+			let source = queries.sources as string;
+			const sourceData = await getSources(source);
+			if (sourceData) {
+				data.sourceData = sourceData;
+			}
+		}
 		return res.send(data);
 	} catch (err) {
 		console.error(err);
+		throw new APIError('Cannot access API');
+	}
+};
+
+const getSources = async (querySource: string) => {
+	//
+	try {
+		let resp = await Axios.get('/v2/sources');
+		let data = resp.data as Sources;
+		let source: Source | undefined;
+		source = data.sources.find((src) => src.id === querySource);
+		return source;
+	} catch (err) {
+		console.log(err);
 		throw new APIError('Cannot access API');
 	}
 };
