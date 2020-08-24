@@ -45,7 +45,9 @@ const getTagsWithRetext = (data: News) => {
 
 const getFrontPage = async (req: Request, res: Response) => {
 	try {
-		let resp = await Axios.get('/v2/top-headlines?country=in');
+		let resp = await Axios.get('/v2/top-headlines?country=in', {
+			...req.query,
+		});
 		let data = resp.data as News;
 
 		// RAKE ALG IMPLEMENTATION
