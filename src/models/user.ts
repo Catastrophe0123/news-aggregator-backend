@@ -4,6 +4,7 @@ import { Password } from '../utils/Password';
 interface UserAttrs {
 	email: String;
 	password: String;
+	bookmarks?: String[];
 }
 
 const userSchema = new mongoose.Schema(
@@ -18,6 +19,7 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			minlength: 4,
 		},
+		bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
 	},
 	{
 		toJSON: {
@@ -46,6 +48,7 @@ userSchema.pre('save', async function (next) {
 interface UserDoc extends mongoose.Document {
 	email: string;
 	password: string;
+	bookmarks: string[];
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {

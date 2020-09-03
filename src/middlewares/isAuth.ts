@@ -17,18 +17,22 @@ declare global {
 
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
 	// code
-	const token = req.headers['Authorization'] as string;
+	const token = req.headers.authorization as string | undefined;
+	console.log('here : ', token);
 	if (!token) {
 		throw new UnauthorizedError('Cannot access this route');
 	}
 
 	try {
+		console.log('im rungningi');
 		const payload = jwt.verify(
 			token,
 			process.env.JWT_SECRET!
 		) as UserPayload;
 		req.currentUser = payload;
-	} catch (err) {}
+	} catch (err) {
+		throw new UnauthorizedError('Cannot access this route');
+	}
 
 	next();
 };

@@ -35,9 +35,13 @@ const signupHandler = async (req: Request, res: Response) => {
 		email: newUser.email,
 	};
 
-	let token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1d' });
+	let token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
 
-	return res.status(201).json({ message: 'new user created', token: token });
+	// newUser = await newUser.populate("bookmarks").execPopulate()
+
+	return res
+		.status(201)
+		.json({ message: 'new user created', newUser, token: token });
 };
 
 const signinHandler = async (req: Request, res: Response) => {
@@ -76,7 +80,8 @@ const signinHandler = async (req: Request, res: Response) => {
 		email: user.email,
 	};
 
-	let token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1d' });
+	let token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
+	user = await user.populate('bookmarks').execPopulate();
 	return res.status(200).json({ user: user, token: token });
 };
 

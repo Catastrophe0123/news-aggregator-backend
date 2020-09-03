@@ -4,6 +4,7 @@ import { json } from 'body-parser';
 import Axios from 'axios';
 import { body } from 'express-validator';
 import mongoose from 'mongoose';
+import cors from 'cors';
 
 // load process.env
 import { config } from 'dotenv';
@@ -11,6 +12,7 @@ config();
 
 const PORT = process.env.PORT || 4000;
 const app = express();
+app.use(cors());
 app.use(json());
 
 // local imports
@@ -19,6 +21,8 @@ import { signupHandler, signinHandler } from './controllers/authentication';
 import { DatabaseConnectionError } from './errors/database-connection-error';
 import { NotFoundError } from './errors/not-found-error';
 import { errorHandler } from './middlewares/error-handler';
+import { isAuth } from './middlewares/isAuth';
+import { postBookmark } from './controllers/user';
 
 // axios config
 Axios.defaults.headers.common['Authorization'] = process.env.NEWS_API;
@@ -49,6 +53,8 @@ app.post(
 	signinHandler
 );
 
+app.post('/bookmark', [isAuth], postBookmark);
+
 app.get('/search', getSearch);
 
 app.all('*', async () => {
@@ -57,11 +63,12 @@ app.all('*', async () => {
 
 app.use(errorHandler);
 
-const start = async () => {
+const main = async () => {
 	try {
 		await mongoose.connect(process.env.MONGO_URI!, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
+			useCreateIndex: true,
 		});
 		console.log('connected to mongodb');
 	} catch (err) {
@@ -74,4 +81,4 @@ const start = async () => {
 	});
 };
 
-start();
+main();
