@@ -57,3 +57,38 @@ export const postBookmark = async (req: Request, res: Response) => {
 		console.log(err);
 	}
 };
+
+export const postSaveSearch = async (req: Request, res: Response) => {
+	// save searches
+
+	try {
+		if (req.currentUser) {
+			console.log('boyboy');
+			let user = await User.findById(req.currentUser.id);
+			if (user) {
+				let { searchString } = req.body;
+
+				if (user.savedSearches.includes(searchString)) {
+					// remove the search thing
+					user.savedSearches.splice(
+						user.savedSearches.indexOf(searchString),
+						1
+					);
+					await user.save();
+					return res
+						.status(200)
+						.json({ message: 'save removed successfully' });
+				} else {
+					// save to search array
+					user.savedSearches.push(searchString);
+					await user.save();
+					return res
+						.status(200)
+						.json({ message: 'saved successfully' });
+				}
+			}
+		}
+	} catch (err) {
+		console.log(err);
+	}
+};

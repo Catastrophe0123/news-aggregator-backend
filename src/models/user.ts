@@ -5,6 +5,7 @@ interface UserAttrs {
 	email: String;
 	password: String;
 	bookmarks?: String[];
+	savedSearches?: String[];
 }
 
 const userSchema = new mongoose.Schema(
@@ -19,6 +20,7 @@ const userSchema = new mongoose.Schema(
 			required: true,
 			minlength: 4,
 		},
+		savedSearches: [String],
 		bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
 	},
 	{
@@ -36,7 +38,6 @@ userSchema.statics.build = (attrs: UserAttrs) => {
 };
 
 userSchema.pre('save', async function (next) {
-	console.log('inside the middleware');
 	if (this.isModified('password')) {
 		const hashed = await Password.toHash(this.get('password'));
 
@@ -48,6 +49,7 @@ userSchema.pre('save', async function (next) {
 interface UserDoc extends mongoose.Document {
 	email: string;
 	password: string;
+	savedSearches: string[];
 	bookmarks: string[];
 }
 
