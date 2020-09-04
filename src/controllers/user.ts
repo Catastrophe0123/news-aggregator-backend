@@ -8,6 +8,7 @@ export const postBookmark = async (req: Request, res: Response) => {
 
 	try {
 		if (req.currentUser) {
+			console.log('in post bookmarks');
 			let user = await User.findById(req.currentUser.id);
 			if (user) {
 				const articleData = req.body;
@@ -75,20 +76,36 @@ export const postSaveSearch = async (req: Request, res: Response) => {
 						1
 					);
 					await user.save();
-					return res
-						.status(200)
-						.json({ message: 'save removed successfully' });
+					let userData = await user
+						.populate('bookmarks')
+						.execPopulate();
+					return res.status(200).json({
+						message: 'save removed successfully',
+						userData,
+					});
 				} else {
 					// save to search array
 					user.savedSearches.push(searchString);
 					await user.save();
+					let userData = await user
+						.populate('bookmarks')
+						.execPopulate();
 					return res
-						.status(200)
-						.json({ message: 'saved successfully' });
+						.status(201)
+						.json({ message: 'saved successfully', userData });
 				}
 			}
 		}
 	} catch (err) {
 		console.log(err);
+	}
+};
+
+export const getSavedSearches = async (req: Request, res: Response) => {
+	// code
+
+	if (req.currentUser) {
+		let user = await User.findById(req.currentUser.id);
+		return res.status(200).json({ savedSearches: user?.savedSearches });
 	}
 };

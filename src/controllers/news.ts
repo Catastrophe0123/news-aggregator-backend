@@ -9,6 +9,7 @@ import vfile from 'vfile';
 import pos from 'retext-pos';
 import k from 'retext-keywords';
 import tostring from 'nlcst-to-string';
+import { User } from '../models/user';
 
 const getTagsWithRetext = (data: News) => {
 	for (let i = 0; i < data.articles.length; i++) {
@@ -95,7 +96,16 @@ const getSearch = async (req: Request, res: Response) => {
 				data.sourceData = sourceData;
 			}
 		}
-		return res.send(data);
+
+		let isSaved = false;
+		if (req.currentUser) {
+			let user = await User.findById(req.currentUser.id);
+			if (user?.savedSearches.includes(queries.q as string)) {
+				isSaved = true;
+			}
+		}
+
+		return res.status(200).json({ data, isSaved });
 	} catch (err) {
 		console.error(err);
 		throw new APIError('Cannot access API');

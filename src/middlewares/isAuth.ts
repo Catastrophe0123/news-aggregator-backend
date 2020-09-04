@@ -24,7 +24,6 @@ export const isAuth = (req: Request, res: Response, next: NextFunction) => {
 	}
 
 	try {
-		console.log('im rungningi');
 		const payload = jwt.verify(
 			token,
 			process.env.JWT_SECRET!

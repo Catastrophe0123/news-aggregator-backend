@@ -22,7 +22,12 @@ import { DatabaseConnectionError } from './errors/database-connection-error';
 import { NotFoundError } from './errors/not-found-error';
 import { errorHandler } from './middlewares/error-handler';
 import { isAuth } from './middlewares/isAuth';
-import { postBookmark, postSaveSearch } from './controllers/user';
+import {
+	postBookmark,
+	postSaveSearch,
+	getSavedSearches,
+} from './controllers/user';
+import { getUser } from './middlewares/getUser';
 
 // axios config
 Axios.defaults.headers.common['Authorization'] = process.env.NEWS_API;
@@ -55,9 +60,11 @@ app.post(
 
 app.post('/bookmark', [isAuth], postBookmark);
 
-app.get('/search', getSearch);
-
 app.post('/search/save', [isAuth], postSaveSearch);
+
+app.get('/search/save', [isAuth], getSavedSearches);
+
+app.get('/search', [getUser], getSearch);
 
 app.all('*', async () => {
 	throw new NotFoundError('Route not found');
