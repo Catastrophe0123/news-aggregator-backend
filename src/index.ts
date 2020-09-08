@@ -26,6 +26,7 @@ import {
 	postBookmark,
 	postSaveSearch,
 	getSavedSearches,
+	getPersonalizedNews,
 } from './controllers/user';
 import { getUser } from './middlewares/getUser';
 
@@ -65,6 +66,8 @@ app.post('/search/save', [isAuth], postSaveSearch);
 app.get('/search/save', [isAuth], getSavedSearches);
 
 app.get('/search', [getUser], getSearch);
+
+app.get('/foryou', [isAuth], getPersonalizedNews);
 
 app.all('*', async () => {
 	throw new NotFoundError('Route not found');

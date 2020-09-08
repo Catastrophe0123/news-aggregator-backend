@@ -19,10 +19,9 @@ export const getUser = (req: Request, res: Response, next: NextFunction) => {
 				process.env.JWT_SECRET!
 			) as UserPayload;
 			req.currentUser = payload;
+			next();
 		} catch (err) {
 			next();
 		}
 	}
-
-	next();
 };

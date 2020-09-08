@@ -11,7 +11,7 @@ import k from 'retext-keywords';
 import tostring from 'nlcst-to-string';
 import { User } from '../models/user';
 
-const getTagsWithRetext = (data: News) => {
+export const getTagsWithRetext = (data: News) => {
 	for (let i = 0; i < data.articles.length; i++) {
 		data.articles[i].tags = [];
 		retext()
@@ -21,16 +21,16 @@ const getTagsWithRetext = (data: News) => {
 				`${data.articles[i].title} ${data.articles[i].description}`,
 				(err: Error, file: any) => {
 					if (err) throw err;
-					console.log('Keywords:');
-					file.data.keywords.forEach(function (key: any) {
-						console.log(tostring(key.matches[0].node));
-					});
-					console.log();
-					console.log('Key-phrases:');
+					// console.log('Keywords:');
+					// file.data.keywords.forEach(function (key: any) {
+					// 	console.log(tostring(key.matches[0].node));
+					// });
+					// console.log();
+					// console.log('Key-phrases:');
 					file.data.keyphrases.forEach(function (phrase: any) {
-						console.log(
-							phrase.matches[0].nodes.map(stringify).join('')
-						);
+						// console.log(
+						// 	phrase.matches[0].nodes.map(stringify).join('')
+						// );
 						data.articles[i].tags!.push(
 							phrase.matches[0].nodes.map(stringify).join('')
 						);
@@ -69,7 +69,7 @@ const getFrontPage = async (req: Request, res: Response) => {
 		// }
 
 		// RETEXT IMPLEMENTATION
-		data = getTagsWithRetext(data);
+		data = await getTagsWithRetext(data);
 
 		return res.send(data);
 	} catch (err) {
@@ -85,10 +85,11 @@ const getSearch = async (req: Request, res: Response) => {
 		let resp = await Axios.get('/v2/everything?language=en', {
 			params: {
 				...queries,
+				sortBy: 'publishedAt',
 			},
 		});
 		let data = resp.data as News;
-		data = getTagsWithRetext(data);
+		data = await getTagsWithRetext(data);
 		if (queries.sources) {
 			let source = queries.sources as string;
 			const sourceData = await getSources(source);
