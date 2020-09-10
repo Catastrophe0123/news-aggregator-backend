@@ -120,7 +120,9 @@ export const getPersonalizedNews = async (req: Request, res: Response) => {
 		let user = await User.findById(req.currentUser.id);
 		let searches = user?.savedSearches;
 		let jobs: Promise<AxiosResponse<any>>[] = [];
-		let headlines = Axios.get('/v2/top-headlines?country=in');
+us		let headlines = Axios.get('/v2/top-headlines', {
+			params: { country: user?.country },
+		});
 		jobs.push(headlines);
 		// let x = await Promise.all(jobs);
 		searches?.forEach((search) => {
@@ -143,6 +145,50 @@ export const getPersonalizedNews = async (req: Request, res: Response) => {
 
 		// perform grouping
 
-		return res.status(200).json({ data: data.slice(0, 20) });
+		return res.status(200).json({ data: data });
+	}
+};
+
+export const postUser = async (req: Request, res: Response) => {
+	try {
+		if (req.currentUser) {
+			let user = await User.findById(req.currentUser.id);
+			if (user) {
+				user.country = req.body.country;
+				user.layout = req.body.layout;
+				user = await user.save();
+				return res.status(200).json({ userData: user });
+			}
+		}
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({ error: 'error occurred' });
+	}
+};
+
+export const postCountry = async (req: Request, res: Response) => {
+	try {
+		const { lat, lon } = req.body;
+
+		const resp = await Axios.get(
+			'https://nominatim.openstreetmap.org/reverse',
+			{ params: { format: 'json', lat, lon } }
+		);
+
+		let country = resp.data.address.country_code;
+		console.log('heereoroiasnd  :A : :A : : ', country);
+		if (req.currentUser) {
+			const user = await User.findById(req.currentUser.id);
+
+			if (user) {
+				user.country = country;
+				await user.save();
+				return res
+					.status(200)
+					.json({ message: 'country saved', country: user.country });
+			}
+		}
+	} catch (err) {
+		console.log(err);
 	}
 };

@@ -47,11 +47,26 @@ export const getTagsWithRetext = (data: News) => {
 const getFrontPage = async (req: Request, res: Response) => {
 	try {
 		console.log('searching for params : ', req.query);
-		let resp = await Axios.get('/v2/top-headlines?country=in', {
+
+		let country: string | undefined | null = null;
+		if (req.currentUser) {
+			const user = await User.findById(req.currentUser.id);
+			country = user?.country;
+		}
+
+		console.log('country: ', country);
+
+		let resp = await Axios.get('/v2/top-headlines?language=en', {
 			params: {
 				...req.query,
+				country: country,
 			},
 		});
+		// let resp = await Axios.get('/v2/top-headlines?country=in', {
+		// 	params: {
+		// 		...req.query,
+		// 	},
+		// });
 		console.log(resp);
 		let data = resp.data as News;
 

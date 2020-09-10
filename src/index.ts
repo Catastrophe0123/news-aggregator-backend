@@ -27,6 +27,8 @@ import {
 	postSaveSearch,
 	getSavedSearches,
 	getPersonalizedNews,
+	postUser,
+	postCountry,
 } from './controllers/user';
 import { getUser } from './middlewares/getUser';
 
@@ -34,7 +36,7 @@ import { getUser } from './middlewares/getUser';
 Axios.defaults.headers.common['Authorization'] = process.env.NEWS_API;
 Axios.defaults.baseURL = 'https://newsapi.org';
 
-app.get('/headlines', getFrontPage);
+app.get('/headlines', [getUser], getFrontPage);
 app.post(
 	'/signup',
 	[
@@ -60,6 +62,10 @@ app.post(
 );
 
 app.post('/bookmark', [isAuth], postBookmark);
+
+app.post('/user', [isAuth], postUser);
+
+app.post('/country', [isAuth], postCountry);
 
 app.post('/search/save', [isAuth], postSaveSearch);
 

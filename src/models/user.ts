@@ -6,6 +6,8 @@ interface UserAttrs {
 	password: String;
 	bookmarks?: String[];
 	savedSearches?: String[];
+	country?: String;
+	layout?: String;
 }
 
 const userSchema = new mongoose.Schema(
@@ -22,6 +24,8 @@ const userSchema = new mongoose.Schema(
 		},
 		savedSearches: [String],
 		bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
+		country: String,
+		layout: { type: String, default: 'list' },
 	},
 	{
 		toJSON: {
@@ -51,6 +55,8 @@ interface UserDoc extends mongoose.Document {
 	password: string;
 	savedSearches: string[];
 	bookmarks: string[];
+	country: string;
+	layout: string;
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
