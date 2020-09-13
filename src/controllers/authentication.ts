@@ -11,7 +11,6 @@ const signupHandler = async (req: Request, res: Response) => {
 	//code
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
-		console.log(errors.array());
 		throw new RequestValidationError(errors.array());
 	}
 	const { email, password } = req.body;
@@ -21,7 +20,6 @@ const signupHandler = async (req: Request, res: Response) => {
 	const userExists = await User.findOne({ email: email });
 
 	if (userExists) {
-		console.log('user exists');
 		throw new BadRequestError('Email already in use');
 	}
 
@@ -48,7 +46,6 @@ const signinHandler = async (req: Request, res: Response) => {
 	// signin handler
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
-		console.log(errors.array());
 		throw new RequestValidationError(errors.array());
 	}
 
@@ -57,13 +54,11 @@ const signinHandler = async (req: Request, res: Response) => {
 	let user = await User.findOne({ email });
 
 	if (!user) {
-		console.log('user doesnot exist');
 		throw new BadRequestError('User does not exist');
 	}
 	// user exists. compare passwords
 	let correctPassword;
 	try {
-		console.log(user.password);
 		correctPassword = await Password.compare(user.password, password);
 	} catch (err) {
 		console.log(err);

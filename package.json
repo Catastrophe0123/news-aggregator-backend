@@ -2,10 +2,15 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "ts-node-dev src/index.ts"
+		"postinstall": "npm run build-ts",
+		"build-ts": "tsc",
+		"start": "npm run serve",
+		"serve": "node dist/index.js",
+		"dev": "ts-node-dev src/index.ts",
+		"watch-node": "nodemon dist/index.js",
+		"watch-ts": "tsc -w"
 	},
 	"keywords": [],
 	"author": "",

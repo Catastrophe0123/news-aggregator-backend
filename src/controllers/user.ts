@@ -11,28 +11,21 @@ export const postBookmark = async (req: Request, res: Response) => {
 
 	try {
 		if (req.currentUser) {
-			console.log('in post bookmarks');
 			let user = await User.findById(req.currentUser.id);
 			if (user) {
 				const articleData = req.body;
-
-				console.log(articleData);
 
 				let userdata = await user.populate('bookmarks').execPopulate();
 
 				let bookmarked = false;
 				let bookmarkId = null;
 
-				console.log('user data : ', userdata);
-
 				for (let bookmark of userdata.bookmarks) {
 					//@ts-ignore
 					if (bookmark.url === articleData.url) {
 						bookmarked = true;
-						console.log('bookmarks : ', bookmark);
 						//@ts-ignore
 						bookmarkId = bookmark._id;
-						console.log('article data : ', articleData.url);
 					}
 				}
 
@@ -42,10 +35,8 @@ export const postBookmark = async (req: Request, res: Response) => {
 				if (bookmarked) {
 					// unbookmark
 
-					console.log('here');
 					const index = user.bookmarks.indexOf(bookmarkId);
 					if (index) {
-						console.log('here');
 						// user.bookmarks.splice(index - 1, 1);
 						//@ts-ignore
 						user.bookmarks.pull(bookmarkId);
@@ -61,7 +52,6 @@ export const postBookmark = async (req: Request, res: Response) => {
 					}
 				} else {
 					// bookmark
-					console.log('in bookmark');
 					const article = ArticleMod.build(articleData);
 					if (req.currentUser) {
 						if (user) {
@@ -90,7 +80,6 @@ export const postSaveSearch = async (req: Request, res: Response) => {
 
 	try {
 		if (req.currentUser) {
-			console.log('boyboy');
 			let user = await User.findById(req.currentUser.id);
 			if (user) {
 				let { searchString } = req.body;
@@ -139,7 +128,6 @@ export const getSavedSearches = async (req: Request, res: Response) => {
 export const getPersonalizedNews = async (req: Request, res: Response) => {
 	//code
 	if (req.currentUser) {
-		console.log('hola');
 		let user = await User.findById(req.currentUser.id);
 		let userdata = await user
 			?.populate({ path: 'bookmarks' })
@@ -208,7 +196,6 @@ export const postCountry = async (req: Request, res: Response) => {
 		);
 
 		let country = resp.data.address.country_code;
-		console.log('heereoroiasnd  :A : :A : : ', country);
 		if (req.currentUser) {
 			const user = await User.findById(req.currentUser.id);
 
@@ -240,6 +227,6 @@ export const getBookmarks = async (req: Request, res: Response) => {
 			}
 		}
 	} catch (err) {
-		console.log('this error: ? :', err);
+		console.log(err);
 	}
 };

@@ -93,7 +93,6 @@ const main = async () => {
 		});
 		console.log('connected to mongodb');
 	} catch (err) {
-		console.log('im running');
 		console.log(err);
 		throw new DatabaseConnectionError('could not connect to database');
 	}

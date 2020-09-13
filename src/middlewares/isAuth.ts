@@ -18,7 +18,6 @@ declare global {
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
 	// code
 	const token = req.headers.authorization as string | undefined;
-	console.log('here : ', token);
 	if (!token) {
 		throw new UnauthorizedError('Cannot access this route');
 	}

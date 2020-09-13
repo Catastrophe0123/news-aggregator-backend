@@ -55,7 +55,6 @@ const getFrontPage = async (req: Request, res: Response) => {
 					.populate({ path: 'bookmarks' })
 					.execPopulate();
 				country = user?.country;
-				console.log('populated user : ', userdata);
 				bookmarks = userdata?.bookmarks;
 			}
 		}
@@ -101,7 +100,6 @@ const getFrontPage = async (req: Request, res: Response) => {
 
 const getSearch = async (req: Request, res: Response) => {
 	let queries = req.query;
-	console.log('queries : ', queries);
 	try {
 		let resp = await Axios.get('/v2/everything?language=en', {
 			params: {
