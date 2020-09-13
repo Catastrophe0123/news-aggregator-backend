@@ -1,8 +1,14 @@
 # News Aggregator
 
-It is a web application built in react that aggregates news from various sources through the newsapi - similar to google news.
+This is the backend of the News Aggregator application that aggregates news from various sources through the newsapi - similar to google news.
 
-It is currently hosted in heroku.<br />
+Stack :
+
+-   MongoDB - hosted in mongo atlas
+-   Express
+-   Node js typescript
+
+Backend is currently hosted in heroku.<br />
 You can find the API endpoint [here](https://my-news-aggregator1.herokuapp.com/)
 
 The API documentation can be found [here](https://github.com/Catastrophe0123/news-aggregator-backend/wiki)
