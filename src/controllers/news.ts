@@ -46,20 +46,25 @@ export const getTagsWithRetext = (data: News) => {
 
 const getFrontPage = async (req: Request, res: Response) => {
 	try {
-		console.log('searching for params : ', req.query);
-
-		let country: string | undefined | null = null;
+		let bookmarks: string[] | undefined = [];
+		let country: string | undefined | null = 'us';
 		if (req.currentUser) {
-			const user = await User.findById(req.currentUser.id);
-			country = user?.country;
+			let user = await User.findById(req.currentUser.id);
+			if (user) {
+				let userdata = await user
+					.populate({ path: 'bookmarks' })
+					.execPopulate();
+				country = user?.country;
+				console.log('populated user : ', userdata);
+				bookmarks = userdata?.bookmarks;
+			}
 		}
 
-		console.log('country: ', country);
-
-		let resp = await Axios.get('/v2/top-headlines?language=en', {
+		let resp = await Axios.get('/v2/top-headlines', {
 			params: {
 				...req.query,
 				country: country,
+				language: 'en',
 			},
 		});
 		// let resp = await Axios.get('/v2/top-headlines?country=in', {
@@ -67,7 +72,6 @@ const getFrontPage = async (req: Request, res: Response) => {
 		// 		...req.query,
 		// 	},
 		// });
-		console.log(resp);
 		let data = resp.data as News;
 
 		// RAKE ALG IMPLEMENTATION
@@ -84,9 +88,11 @@ const getFrontPage = async (req: Request, res: Response) => {
 		// }
 
 		// RETEXT IMPLEMENTATION
-		data = await getTagsWithRetext(data);
+		data = getTagsWithRetext(data);
 
-		return res.send(data);
+		// return res.send(data);
+
+		return res.status(200).json({ data: data, bookmarks: bookmarks });
 	} catch (err) {
 		console.error(err);
 		throw new APIError('Cannot access API');
@@ -104,7 +110,7 @@ const getSearch = async (req: Request, res: Response) => {
 			},
 		});
 		let data = resp.data as News;
-		data = await getTagsWithRetext(data);
+		data = getTagsWithRetext(data);
 		if (queries.sources) {
 			let source = queries.sources as string;
 			const sourceData = await getSources(source);
@@ -114,14 +120,21 @@ const getSearch = async (req: Request, res: Response) => {
 		}
 
 		let isSaved = false;
+		let bookmarks: string[] = [];
 		if (req.currentUser) {
 			let user = await User.findById(req.currentUser.id);
-			if (user?.savedSearches.includes(queries.q as string)) {
-				isSaved = true;
+			if (user) {
+				let userdata = await user
+					.populate({ path: 'bookmarks' })
+					.execPopulate();
+				bookmarks = userdata.bookmarks;
+				if (user.savedSearches.includes(queries.q as string)) {
+					isSaved = true;
+				}
 			}
 		}
 
-		return res.status(200).json({ data, isSaved });
+		return res.status(200).json({ data, isSaved, bookmarks });
 	} catch (err) {
 		console.error(err);
 		throw new APIError('Cannot access API');

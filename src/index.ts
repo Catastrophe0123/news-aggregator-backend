@@ -29,6 +29,7 @@ import {
 	getPersonalizedNews,
 	postUser,
 	postCountry,
+	getBookmarks,
 } from './controllers/user';
 import { getUser } from './middlewares/getUser';
 
@@ -68,6 +69,8 @@ app.post('/user', [isAuth], postUser);
 app.post('/country', [isAuth], postCountry);
 
 app.post('/search/save', [isAuth], postSaveSearch);
+
+app.get('/bookmarks', [isAuth], getBookmarks);
 
 app.get('/search/save', [isAuth], getSavedSearches);
 

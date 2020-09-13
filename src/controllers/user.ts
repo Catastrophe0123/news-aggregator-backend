@@ -16,24 +16,47 @@ export const postBookmark = async (req: Request, res: Response) => {
 			if (user) {
 				const articleData = req.body;
 
-				const relatedArticle = await ArticleMod.findOne({
-					url: articleData.url,
-				});
-				if (relatedArticle) {
+				console.log(articleData);
+
+				let userdata = await user.populate('bookmarks').execPopulate();
+
+				let bookmarked = false;
+				let bookmarkId = null;
+
+				console.log('user data : ', userdata);
+
+				for (let bookmark of userdata.bookmarks) {
+					//@ts-ignore
+					if (bookmark.url === articleData.url) {
+						bookmarked = true;
+						console.log('bookmarks : ', bookmark);
+						//@ts-ignore
+						bookmarkId = bookmark._id;
+						console.log('article data : ', articleData.url);
+					}
+				}
+
+				// const relatedArticle = await ArticleMod.findOne({
+				// 	url: articleData.url,
+				// });
+				if (bookmarked) {
 					// unbookmark
+
 					console.log('here');
-					const index = user.bookmarks.indexOf(relatedArticle.id);
+					const index = user.bookmarks.indexOf(bookmarkId);
 					if (index) {
 						console.log('here');
-						user.bookmarks.splice(index, 1);
+						// user.bookmarks.splice(index - 1, 1);
+						//@ts-ignore
+						user.bookmarks.pull(bookmarkId);
 						await user.save();
-						await relatedArticle.deleteOne();
-						let userdata = await user
-							.populate('bookmarks')
+						await ArticleMod.deleteOne({ id: bookmarkId });
+						let userData = await user
+							.populate({ path: 'bookmarks' })
 							.execPopulate();
 						return res.status(200).json({
 							message: 'article unbookmarked successfully',
-							userdata: userdata,
+							userdata: userData,
 						});
 					}
 				} else {
@@ -45,12 +68,12 @@ export const postBookmark = async (req: Request, res: Response) => {
 							user.bookmarks.push(article.id);
 							await article.save();
 							await user.save();
-							let userdata = await user
+							let userData = await user
 								.populate({ path: 'bookmarks' })
 								.execPopulate();
 							return res.status(201).json({
 								message: 'bookmark added successfully',
-								userdata: userdata,
+								userdata: userData,
 							});
 						}
 					}
@@ -118,16 +141,19 @@ export const getPersonalizedNews = async (req: Request, res: Response) => {
 	if (req.currentUser) {
 		console.log('hola');
 		let user = await User.findById(req.currentUser.id);
+		let userdata = await user
+			?.populate({ path: 'bookmarks' })
+			.execPopulate();
 		let searches = user?.savedSearches;
 		let jobs: Promise<AxiosResponse<any>>[] = [];
-us		let headlines = Axios.get('/v2/top-headlines', {
+		let headlines = Axios.get('/v2/top-headlines', {
 			params: { country: user?.country },
 		});
 		jobs.push(headlines);
 		// let x = await Promise.all(jobs);
 		searches?.forEach((search) => {
 			let favSearch = Axios.get('/v2/everything?language=en', {
-				params: { q: search },
+				params: { q: search, sortBy: 'publishedAt' },
 			});
 			jobs.push(favSearch);
 			// searches
@@ -140,12 +166,18 @@ us		let headlines = Axios.get('/v2/top-headlines', {
 		searchResults.forEach(async (el) => {
 			let d = el.data as News;
 			d = getTagsWithRetext(d);
-			data.push(...d.articles.slice(0, 3));
+			if (searchResults.length <= 5) {
+				data.push(...d.articles);
+			} else {
+				data.push(...d.articles.slice(0, 3));
+			}
 		});
 
 		// perform grouping
 
-		return res.status(200).json({ data: data });
+		let bookmarks = userdata?.bookmarks;
+
+		return res.status(200).json({ data: data, bookmarks: bookmarks });
 	}
 };
 
@@ -190,5 +222,24 @@ export const postCountry = async (req: Request, res: Response) => {
 		}
 	} catch (err) {
 		console.log(err);
+	}
+};
+
+export const getBookmarks = async (req: Request, res: Response) => {
+	try {
+		if (req.currentUser) {
+			const user = await User.findById(req.currentUser.id);
+			if (user) {
+				let bookmarks = [];
+				// let userdata = await user
+				// 	.populate({ path: 'bookmarks' })
+				// 	.execPopulate();
+				let userdata = await user.populate('bookmarks').execPopulate();
+				bookmarks = userdata.bookmarks;
+				return res.status(200).json({ bookmarks: bookmarks });
+			}
+		}
+	} catch (err) {
+		console.log('this error: ? :', err);
 	}
 };
